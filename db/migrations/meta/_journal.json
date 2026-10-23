@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792796581440,
+      "tag": "20261023230301_parallel_leopardon",
+      "breakpoints": true
+    }
+  ]
+}
