@@ -8,6 +8,13 @@
       "when": 1792796581440,
       "tag": "20261023230301_parallel_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792798569591,
+      "tag": "20261023233609_thick_hercules",
+      "breakpoints": true
     }
   ]
 }
