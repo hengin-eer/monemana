@@ -13,6 +13,8 @@
     "jsx": "preserve"
   },
   "include": [
+    "auth.ts",
+    "env.ts",
     "src",
     "pages",
     "routes",
