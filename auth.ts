@@ -1,7 +1,30 @@
 import { defineAuth } from "void/auth";
+import { sendEmail } from "void/email";
 
 export default defineAuth(({ defaults, env }) => ({
   ...defaults,
+  // defineAuth は深いマージをしないので、既定値を展開したうえで必要な項目だけ上書きする。
+  emailAndPassword: {
+    ...defaults.emailAndPassword,
+    enabled: true,
+    // メール確認が済むまでサインインさせない（許可メールの先取り登録でログインされるのを防ぐ）。
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      const result = await sendEmail({
+        to: user.email,
+        subject: "【monemana】メールアドレスの確認",
+        text: `monemana への登録ありがとうございます。\n次のリンクを開いてメールアドレスを確認してください。\n\n${url}\n\n心当たりがない場合は、このメールを破棄してください。`,
+      });
+      if (!result.ok) {
+        console.error("verification email failed", "error" in result ? result.error : result.deliveries);
+      }
+    },
+  },
   databaseHooks: {
     user: {
       create: {

@@ -7,20 +7,32 @@ const email = ref("");
 const password = ref("");
 const pending = ref(false);
 const error = ref("");
+const notice = ref("");
 
 async function submit() {
   if (pending.value) return;
   pending.value = true;
   error.value = "";
+  notice.value = "";
   try {
     const credentials = { email: email.value.trim(), password: password.value };
     const result = signingUp.value
-      ? await auth.signUp.email({ ...credentials, name: credentials.email })
-      : await auth.signIn.email(credentials);
+      ? await auth.signUp.email({ ...credentials, name: credentials.email, callbackURL: "/" })
+      : await auth.signIn.email({ ...credentials, callbackURL: "/" });
     if (result.error) {
-      error.value = signingUp.value
-        ? "登録できませんでした。許可されたメールアドレスか、登録済みでないかを確認してください。"
-        : "ログインできませんでした。メールアドレスとパスワードを確認してください。";
+      if (result.error.code === "EMAIL_NOT_VERIFIED") {
+        notice.value = "メールアドレスが未確認です。確認メールを再送したので、届いたリンクを開いてください。";
+      } else {
+        error.value = signingUp.value
+          ? "登録できませんでした。許可されたメールアドレスか、登録済みでないかを確認してください。"
+          : "ログインできませんでした。メールアドレスとパスワードを確認してください。";
+      }
+      return;
+    }
+    if (signingUp.value) {
+      // メール確認が済むまでセッションは発行されない。
+      notice.value = "確認メールを送信しました。届いたリンクを開くと登録が完了します。";
+      password.value = "";
       return;
     }
     window.location.assign("/");
@@ -35,6 +47,7 @@ function toggleMode() {
   signingUp.value = !signingUp.value;
   password.value = "";
   error.value = "";
+  notice.value = "";
 }
 </script>
 
@@ -57,6 +70,7 @@ function toggleMode() {
             :minlength="signingUp ? 8 : undefined" :maxlength="signingUp ? 128 : undefined" required />
         </p>
         <p v-if="signingUp">パスワードは8〜128文字で入力してください。</p>
+        <p v-if="notice" role="status">{{ notice }}</p>
         <p v-if="error" role="alert">{{ error }}</p>
         <button type="submit">{{ pending ? "処理中…" : signingUp ? "登録する" : "ログイン" }}</button>
       </fieldset>
