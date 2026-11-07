@@ -19,8 +19,11 @@ pnpm exec vp dev
 メール内のリンクを開いて確認を済ませると登録が完了し、以降はログインを使います。
 メール確認が済むまではログインできません（ログインを試すと確認メールを再送します）。
 ローカル開発では、確認メールは実送信されず Void のローカル受信箱に溜まります。
-本番の共有送信元は検証済みの宛先にしか送れないため、許可するアドレスごとに
-`pnpm exec void email allow <address>` を実行してください。
+本番は Cloudflare の `send_email` バインディングで送信します（Workers Free の構成）。
+Workers Free では検証済みの宛先にしか送れないため、`ALLOWED_EMAILS` の各アドレスを
+Cloudflare の Email Routing の「Destination addresses」に追加し、受信者が確認リンクを開いて検証済みにしてください。
+未検証の宛先に送ると、ログに `auth_mail_failed`（`UNVERIFIED_DESTINATION`）が残り、メールは届きません。
+送信元は Email Routing が有効なドメインのアドレス（`src/auth-mail.ts` の `AUTH_MAIL_FROM`）です。
 
 確認メールが届かない場合は、ログイン画面の「確認メールを再送」を使います（60秒の間隔あり）。
 パスワードを忘れた場合や、登録後にログインできない場合は `/reset-password` から再設定できます。

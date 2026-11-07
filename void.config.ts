@@ -5,7 +5,11 @@ export default defineConfig({
   "worker": {
     "compatibility_date": "2026-02-24"
   },
-  "email": {
-    "from": "monemana <noreply@monemana.hiro-to.moda>"
+  // 無料プラン(案B): email.from を置くと deploy 時に Email Sending の自動セットアップ(Workers Paid が必要)が走る。
+  // そのため email.from は使わず、SEND_EMAIL バインディングを手動で宣言し、送信元は src/auth-mail.ts で明示する。
+  "cloudflare": {
+    "send_email": [{ "name": "SEND_EMAIL" }],
+    // 公開ホスト名。deploy 時に DNS レコードと証明書が自動で作られる。
+    "routes": [{ "pattern": "monemana.hiro-to.moda", "custom_domain": true }]
   }
 });
