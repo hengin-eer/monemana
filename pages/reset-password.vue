@@ -50,6 +50,14 @@ async function resetPassword() {
   try {
     const result = await auth.resetPassword({ newPassword: newPassword.value, token: token.value });
     if (result.error) {
+      if (result.error.code === "INVALID_TOKEN" || result.error.code === "TOKEN_EXPIRED") {
+        // 入力中に期限切れになった・使用済みのリンクの場合は、再申請の画面に切り替える。
+        linkError.value = authErrorMessage(result.error);
+        token.value = "";
+        newPassword.value = "";
+        window.history.replaceState(null, "", "/reset-password");
+        return;
+      }
       error.value = authErrorMessage(result.error);
       return;
     }

@@ -10,6 +10,8 @@ export default defineAuth(({ defaults, env }) => ({
     enabled: true,
     // メール確認が済むまでサインインさせない（許可メールの先取り登録でログインされるのを防ぐ）。
     requireEmailVerification: true,
+    // 再設定したら既存セッションを失効させる（第三者がログイン済みでも締め出せるように）。
+    revokeSessionsOnPasswordReset: true,
     // 先取り登録された本人が回復できるようにする。
     sendResetPassword: async ({ user, url }) => {
       await sendAuthMail(
