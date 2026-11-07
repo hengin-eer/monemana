@@ -7,8 +7,9 @@ import { getUser, requireAuth } from "void/auth";
 export type Props = InferProps<typeof loader>;
 
 export const loader = defineHandler(async (c) => {
-  if (!getUser()) return c.redirect("/login");
-  const user = requireAuth(c);
+  // ページは未ログインなら /login へ。getUser() の結果をそのまま使い、二重チェックしない。
+  const user = getUser();
+  if (!user) return c.redirect("/login");
   const rows = await db.select().from(messages).orderBy(desc(messages.id));
   return { messages: rows, email: user.email };
 });
