@@ -2,7 +2,7 @@
 // 新しいページやルートを足すときは、認証チェックを書かなくても守られる。
 // 公開したいパスだけをここに足す。
 
-const PUBLIC_EXACT = new Set(["/login", "/reset-password", "/favicon.ico"]);
+const PUBLIC_EXACT = new Set(["/login", "/reset-password", "/favicon.ico", "/favicon.svg", "/og-image.png"]);
 // 前方一致は「/」で終わる形にする（"/api/auth" と "/api/authx" を区別するため）。
 const PUBLIC_PREFIXES = ["/api/auth/", "/assets/"];
 
