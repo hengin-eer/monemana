@@ -1,7 +1,8 @@
 name: Deploy to Cloudflare
 on:
-  push:
-    branches: [main]
+  # 自動デプロイは止めている(起動確認がCloudflare Accessに弾かれる原因が未特定)。
+  # 通常は手元で `pnpm exec void deploy --platform cloudflare` を実行する。
+  workflow_dispatch:
 
 concurrency:
   group: void-cloudflare-deploy-${{ github.repository }}-${{ github.ref }}
