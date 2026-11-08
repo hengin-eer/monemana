@@ -94,37 +94,52 @@ function toggleMode() {
 </script>
 
 <template>
-  <main>
-    <h1>monemana</h1>
-    <h2>{{ signingUp ? "初回登録" : "ログイン" }}</h2>
-    <p v-if="signingUp">管理者が許可したメールアドレスでのみ登録できます。</p>
+  <main class="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-4 py-10">
+    <div>
+      <h1 class="text-sm font-medium text-muted">monemana</h1>
+      <h2 class="mt-1 text-2xl font-bold">{{ signingUp ? "初回登録" : "ログイン" }}</h2>
+      <p v-if="signingUp" class="mt-2 text-sm text-muted">管理者が許可したメールアドレスでのみ登録できます。</p>
+    </div>
     <form @submit.prevent="submit">
-      <fieldset :disabled="pending">
-        <legend>{{ signingUp ? "アカウントを登録" : "メールとパスワードでログイン" }}</legend>
-        <p>
-          <label for="email">メールアドレス</label>
-          <input id="email" v-model="email" name="email" type="email" autocomplete="username" required />
-        </p>
-        <p>
-          <label for="password">パスワード</label>
-          <input id="password" v-model="password" name="password" type="password"
+      <fieldset :disabled="pending" class="space-y-4">
+        <legend class="mb-3 text-sm font-medium">{{ signingUp ? "アカウントを登録" : "メールとパスワードでログイン" }}</legend>
+        <UFormField label="メールアドレス">
+          <UInput v-model="email" name="email" type="email" autocomplete="username" required class="w-full" />
+        </UFormField>
+        <UFormField
+          label="パスワード"
+          :help="signingUp ? 'パスワードは8〜128文字で入力してください。' : undefined"
+        >
+          <UInput
+            v-model="password"
+            name="password"
+            type="password"
             :autocomplete="signingUp ? 'new-password' : 'current-password'"
-            :minlength="signingUp ? 8 : undefined" :maxlength="signingUp ? 128 : undefined" required />
-        </p>
-        <p v-if="signingUp">パスワードは8〜128文字で入力してください。</p>
-        <p v-if="notice" role="status">{{ notice }}</p>
-        <p v-if="error" role="alert">{{ error }}</p>
-        <button type="submit">{{ pending ? "処理中…" : signingUp ? "登録する" : "ログイン" }}</button>
+            :minlength="signingUp ? 8 : undefined"
+            :maxlength="signingUp ? 128 : undefined"
+            required
+            class="w-full"
+          />
+        </UFormField>
+        <UAlert v-if="notice" role="status" color="info" variant="subtle" :description="notice" />
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
+        <UButton type="submit" block>{{ pending ? "処理中…" : signingUp ? "登録する" : "ログイン" }}</UButton>
       </fieldset>
     </form>
-    <p v-if="canResend">
-      <button type="button" :disabled="pending || cooldown > 0 || !email.trim()" @click="resend">
+    <div v-if="canResend">
+      <UButton
+        type="button"
+        variant="outline"
+        block
+        :disabled="pending || cooldown > 0 || !email.trim()"
+        @click="resend"
+      >
         {{ cooldown > 0 ? `確認メールを再送（${cooldown}秒後に可能）` : "確認メールを再送" }}
-      </button>
-    </p>
-    <p><a href="/reset-password">パスワードを忘れた場合・登録後にログインできない場合</a></p>
-    <button type="button" :disabled="pending" @click="toggleMode">
+      </UButton>
+    </div>
+    <p class="text-sm"><a href="/reset-password" class="rounded-sm text-primary underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">パスワードを忘れた場合・登録後にログインできない場合</a></p>
+    <UButton type="button" variant="ghost" color="neutral" :disabled="pending" @click="toggleMode">
       {{ signingUp ? "ログインに戻る" : "初めて使う方：初回登録" }}
-    </button>
+    </UButton>
   </main>
 </template>
