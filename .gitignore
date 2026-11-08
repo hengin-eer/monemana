@@ -9,3 +9,5 @@ dist
 *.tsbuildinfo
 .DS_Store
 .local
+auto-imports.d.ts
+components.d.ts
