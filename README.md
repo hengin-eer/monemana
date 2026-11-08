@@ -95,3 +95,18 @@ DB に依存しない純粋な部分（`src/jst.ts`、金額・項目の検証�
   新しく clone した直後は、型チェックの前に `pnpm exec vp build` を実行してください。
 - `@void/vue` にはアプリの初期化に差し込む公開フックがないため、`pages/layout.vue` の `setup` で Nuxt UI のプラグインを差し込んでいます。
 - Nuxt UI は色の CSS 変数を実行時に出しますが、Void の SSR には含まれないため、`vite.config.ts` の `uiColors` から静的な CSS（`virtual:ui-colors.css`）を作って補っています。色を変えるときは `uiColors` を直してください。
+
+## デプロイ
+
+手元から手動で行う（GitHub Actions の自動デプロイは止めている）。
+
+```sh
+git checkout main && git pull
+pnpm install --frozen-lockfile
+pnpm exec void deploy --platform cloudflare
+```
+
+- 事前に `pnpm exec void cloudflare status` でログイン状態を確認する。
+- `.env.local` があるとビルドが失敗する（`void/env supports one local file: .env`）。置かない。
+- 破壊的なマイグレーション（`DROP` など）は、SQL の先頭に `-- void:allow-destructive` が無いと止まる。
+- 自動デプロイが止まっている理由: CI では起動確認が `Cloudflare Access blocked the uploaded Worker Version readiness probe` で失敗する。原因は未特定（Access は未使用、`CLOUDFLARE_API_TOKEN` と `CLOUDFLARE_WORKERS_SUBDOMAIN` は設定済みでも再現）。再開する時は `.github/workflows/void-deploy.yml` に `push` トリガーを戻す。
