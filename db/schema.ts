@@ -1,11 +1,4 @@
-import { sql } from "void/db";
 import { index, integer, sqliteTable, text, uniqueIndex } from "void/schema-d1";
-
-export const messages = sqliteTable("messages", {
-  id: integer("id").primaryKey({ autoIncrement: true }),
-  text: text("text").notNull(),
-  createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
-});
 
 // 認証テーブル（user など）は Void が管理する。ここでは FK の参照先として宣言するだけで、
 // export しない（export するとマイグレーションに user テーブルが重複して作られる）。
