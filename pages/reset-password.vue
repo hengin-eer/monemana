@@ -109,6 +109,6 @@ async function resetPassword() {
       </fieldset>
     </form>
 
-    <p class="text-sm"><a href="/login" class="text-primary underline underline-offset-2">ログインに戻る</a></p>
+    <p class="text-sm"><a href="/login" class="rounded-sm text-primary underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">ログインに戻る</a></p>
   </main>
 </template>

@@ -108,7 +108,6 @@ function toggleMode() {
         </UFormField>
         <UFormField
           label="パスワード"
-          :hint="signingUp ? '8〜128文字' : undefined"
           :help="signingUp ? 'パスワードは8〜128文字で入力してください。' : undefined"
         >
           <UInput
@@ -138,7 +137,7 @@ function toggleMode() {
         {{ cooldown > 0 ? `確認メールを再送（${cooldown}秒後に可能）` : "確認メールを再送" }}
       </UButton>
     </div>
-    <p class="text-sm"><a href="/reset-password" class="text-primary underline underline-offset-2">パスワードを忘れた場合・登録後にログインできない場合</a></p>
+    <p class="text-sm"><a href="/reset-password" class="rounded-sm text-primary underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">パスワードを忘れた場合・登録後にログインできない場合</a></p>
     <UButton type="button" variant="ghost" color="neutral" :disabled="pending" @click="toggleMode">
       {{ signingUp ? "ログインに戻る" : "初めて使う方：初回登録" }}
     </UButton>
