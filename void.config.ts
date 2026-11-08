@@ -12,6 +12,10 @@ export default defineConfig({
   // そのため email.from は使わず、SEND_EMAIL バインディングを手動で宣言し、送信元は src/auth-mail.ts で明示する。
   "cloudflare": {
     "send_email": [{ "name": "SEND_EMAIL" }],
+    // 版ごとのプレビューURLだけ有効にする。void deploy の起動確認(readiness)がこのURLを使う。
+    // 本番のworkers.devドメインは無効のまま(公開はカスタムドメインに集約)。
+    "workers_dev": false,
+    "preview_urls": true,
     // 公開ホスト名。deploy 時に DNS レコードと証明書が自動で作られる。
     "routes": [{ "pattern": "monemana.hiro-to.moda", "custom_domain": true }]
   }

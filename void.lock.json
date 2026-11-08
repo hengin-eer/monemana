@@ -6,6 +6,8 @@
         "name": "SEND_EMAIL"
       }
     ],
+    "workers_dev": false,
+    "preview_urls": true,
     "routes": [
       {
         "pattern": "monemana.hiro-to.moda",
@@ -35,7 +37,9 @@
       }
     ],
     "name": "monemana",
-    "compatibility_date": "2026-02-24"
+    "compatibility_date": "2026-02-24",
+    "workers_dev": false,
+    "preview_urls": true
   },
-  "text": "{\n  \"send_email\": [\n    {\n      \"name\": \"SEND_EMAIL\"\n    }\n  ],\n  \"routes\": [\n    {\n      \"pattern\": \"monemana.hiro-to.moda\",\n      \"custom_domain\": true\n    }\n  ],\n  \"account_id\": \"8a63703958657b8e68b9e2465932ed36\",\n  \"d1_databases\": [\n    {\n      \"binding\": \"DB\",\n      \"database_name\": \"monemana-db\",\n      \"database_id\": \"09331569-34f5-4c1e-b24b-ee49da7c1a5b\",\n      \"migrations_dir\": \"./db/migrations\"\n    }\n  ],\n  \"name\": \"monemana\",\n  \"compatibility_date\": \"2026-02-24\"\n}\n"
+  "text": "{\n  \"send_email\": [\n    {\n      \"name\": \"SEND_EMAIL\"\n    }\n  ],\n  \"routes\": [\n    {\n      \"pattern\": \"monemana.hiro-to.moda\",\n      \"custom_domain\": true\n    }\n  ],\n  \"account_id\": \"8a63703958657b8e68b9e2465932ed36\",\n  \"d1_databases\": [\n    {\n      \"binding\": \"DB\",\n      \"database_name\": \"monemana-db\",\n      \"database_id\": \"09331569-34f5-4c1e-b24b-ee49da7c1a5b\",\n      \"migrations_dir\": \"./db/migrations\"\n    }\n  ],\n  \"name\": \"monemana\",\n  \"compatibility_date\": \"2026-02-24\",\n  \"workers_dev\": false,\n  \"preview_urls\": true\n}\n"
 }
