@@ -1,7 +1,14 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-/* 白文字・リンク文字との対比を WCAG AA（4.5:1）以上にするため、primary は 600 番を使う。 */
+/*
+ * 文字・背景との対比を WCAG AA（4.5:1）以上にするため、色の濃さを上げる。
+ * 色の定義そのものは vite.config.ts（uiColors）から作る。ダークモードは使っていない（colorMode: false）。
+ * ダークモードを有効にする場合は、.dark にも同様の上書きが要る（:root だけでは詳細度が負ける）。
+ */
 :root {
   --ui-primary: var(--ui-color-primary-600);
+  --ui-info: var(--ui-color-info-700);
+  --ui-success: var(--ui-color-success-700);
+  --ui-error: var(--ui-color-error-700);
 }
