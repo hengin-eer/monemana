@@ -2,6 +2,7 @@ name: Deploy to Cloudflare
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 concurrency:
   group: void-cloudflare-deploy-${{ github.repository }}-${{ github.ref }}
@@ -32,4 +33,6 @@ jobs:
           # Required only when Cloudflare Access protects Worker readiness.
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
-        run: pnpm exec void deploy --platform cloudflare
+        # 版ごとのプレビューURLがCloudflare Accessで守られていて、起動確認(readiness)が弾かれるため --atomic を使う。
+        # --atomic は先にトラフィックを切り替え、公開されている本番ホスト名で起動確認する。
+        run: pnpm exec void deploy --platform cloudflare --atomic
