@@ -1,13 +1,42 @@
 <script setup lang="ts">
 import type { Props } from "./index.server";
 import { Form, useForm } from "@void/vue";
+import { ref } from "vue";
+import { auth } from "void/client";
 
 defineProps<Props>();
 const form = useForm("/", { text: "" });
+const signingOut = ref(false);
+const signOutError = ref("");
+
+async function signOut() {
+  if (signingOut.value) return;
+  signingOut.value = true;
+  signOutError.value = "";
+  try {
+    const result = await auth.signOut();
+    if (result.error) {
+      signOutError.value = "ログアウトできませんでした。もう一度お試しください。";
+      return;
+    }
+    window.location.assign("/login");
+  } catch {
+    signOutError.value = "通信に失敗しました。もう一度お試しください。";
+  } finally {
+    signingOut.value = false;
+  }
+}
 </script>
 
 <template>
   <main>
+    <header>
+      <p>{{ email }}</p>
+      <button type="button" :disabled="signingOut" @click="signOut">
+        {{ signingOut ? "処理中…" : "ログアウト" }}
+      </button>
+      <p v-if="signOutError" role="alert">{{ signOutError }}</p>
+    </header>
     <h1>Welcome to Void</h1>
     <p>
       This starter is running in Pages mode. The list below is loaded from your database in

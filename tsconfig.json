@@ -5,6 +5,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "strict": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": [
@@ -13,6 +15,8 @@
     "jsx": "preserve"
   },
   "include": [
+    "auth.ts",
+    "env.ts",
     "src",
     "pages",
     "routes",
