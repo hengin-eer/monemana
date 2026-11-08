@@ -3,7 +3,9 @@ import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import { useForm, useRouter } from "@void/vue";
 import { fetch } from "void/client";
 import type { ExpenseRow } from "../expense-filter.ts";
+import { formatYen } from "../format.ts";
 import { toJstLocalInput } from "../jst.ts";
+import { parseAmount } from "../money.ts";
 import { readStickyDateTime, writeStickyDateTime } from "../sticky-datetime.ts";
 import { errorMessage } from "../error-message.ts";
 import { useFeedback } from "../use-feedback.ts";
@@ -16,6 +18,8 @@ import DateTimeInput from "./DateTimeInput.vue";
 // - 成功したら金額と商品名だけを空にし、フォーカスを金額に戻す。日時とカテゴリは直前の値を保つ。
 // - 送信ボタンは disabled にしない（フォーカスを失うため）。二重送信は内部で防ぐ。
 const props = defineProps<{
+  /** 表示中の月・カテゴリの絞り込み（送信後も保つため、送信先の URL に含める）。 */
+  query: string;
   categories: { id: number; name: string }[];
   defaultSpentAt: string;
   editing: ExpenseRow | null;
@@ -25,8 +29,10 @@ const emit = defineEmits<{ finished: [id: number]; cancel: [] }>();
 type Fields = { spentAt: string; amount: string | number; itemName: string; categoryId: number | null };
 const blank = (): Fields => ({ spentAt: props.defaultSpentAt, amount: "", itemName: "", categoryId: null });
 
-const createForm = useForm("/", blank());
-const updateForm = useForm("/?update", { id: 0, ...blank() });
+// 絞り込みは画面の遷移のたびにページごと作り直されるので、送信先の URL はここで固定してよい。
+// Void はクエリの最初のキーをアクション名とみなす。既定のアクションは「default」で呼ぶ（月などが最初だと 404 になる）。
+const createForm = useForm(`/?default&${props.query}` as "/", blank());
+const updateForm = useForm(`/?update&${props.query}` as "/?update", { id: 0, ...blank() });
 const isEditing = computed(() => props.editing !== null);
 const form = computed(() => (isEditing.value ? updateForm : createForm));
 
@@ -81,7 +87,10 @@ async function submit() {
   current.clearErrors();
   current.clearError();
   const editingId = props.editing?.id ?? null;
-  const summary = `${current.data.itemName.trim()}（${current.data.amount}円）`;
+  const submitted = { amount: current.data.amount, itemName: current.data.itemName };
+  // 通知は、保存される値（正規化した金額）で出す。blur 前に Enter されても食い違わない。
+  const amountValue = parseAmount(current.data.amount);
+  const summary = `${current.data.itemName.trim()}${amountValue === null ? "" : `（${formatYen(amountValue)}）`}`;
   try {
     // preserveState: ページを作り直さず、入力途中の値とフォーカスを保つ。
     if (isEditing.value) await updateForm.put({ preserveScroll: true, preserveState: true });
@@ -109,10 +118,14 @@ async function submit() {
   feedback.success("追加しました", summary);
   writeStickyDateTime(createForm.data.spentAt);
   inherited.value = true;
-  createForm.data.amount = "";
-  createForm.data.itemName = "";
-  await nextTick();
-  amountEl.value?.focus();
+  // 送信を待つ間に次の支出を打ち始めていたら、その入力は消さず、フォーカスも奪わない。
+  const untouched = createForm.data.amount === submitted.amount && createForm.data.itemName === submitted.itemName;
+  if (createForm.data.amount === submitted.amount) createForm.data.amount = "";
+  if (createForm.data.itemName === submitted.itemName) createForm.data.itemName = "";
+  if (untouched) {
+    await nextTick();
+    amountEl.value?.focus();
+  }
 }
 
 // カテゴリ欄から、その場で作成して選択する（ページは作り直さない）。

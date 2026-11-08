@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { Link, useForm } from "@void/vue";
 import type { Props } from "./categories.server";
 import AppHeader from "../src/components/AppHeader.vue";
@@ -35,14 +35,19 @@ async function create() {
 // ---- 名前変更 -----------------------------------------------------------------------------
 const renamingId = ref<number | null>(null);
 const renameForm = useForm("/categories?rename", { id: 0, name: "" });
-const renameEl = ref<{ inputRef?: HTMLInputElement | null } | null>(null);
 
 function startRename(category: { id: number; name: string }) {
   renamingId.value = category.id;
   renameForm.clearErrors();
   renameForm.data.id = category.id;
   renameForm.data.name = category.name;
-  setTimeout(() => renameEl.value?.inputRef?.focus(), 0);
+  void nextTick(() => document.querySelector<HTMLInputElement>(`#category-${category.id} input`)?.focus());
+}
+
+// キャンセルしたら、名前変更ボタンにフォーカスを戻す。
+function cancelRename(id: number) {
+  renamingId.value = null;
+  void nextTick(() => document.querySelector<HTMLElement>(`#category-${id} button`)?.focus());
 }
 
 async function rename() {
@@ -116,11 +121,11 @@ async function remove(category: { id: number; name: string }) {
         <li v-for="category in categories" :id="`category-${category.id}`" :key="category.id" tabindex="-1" class="py-3">
           <form v-if="renamingId === category.id" class="flex flex-wrap items-start gap-2" novalidate @submit.prevent="rename">
             <UFormField :label="`「${category.name}」の新しい名前`" name="name" :error="renameForm.errors.name" class="min-w-56 flex-1">
-              <UInput ref="renameEl" v-model="renameForm.data.name" autocomplete="off" maxlength="30" class="w-full" />
+              <UInput v-model="renameForm.data.name" autocomplete="off" maxlength="30" class="w-full" />
             </UFormField>
             <div class="mt-[1.625rem] flex gap-2">
               <UButton type="submit" :aria-disabled="renameForm.pending">保存</UButton>
-              <UButton type="button" color="neutral" variant="outline" @click="renamingId = null">キャンセル</UButton>
+              <UButton type="button" color="neutral" variant="outline" @click="cancelRename(category.id)">キャンセル</UButton>
             </div>
           </form>
           <div v-else class="flex flex-wrap items-center justify-between gap-3">

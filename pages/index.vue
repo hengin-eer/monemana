@@ -18,19 +18,29 @@ const props = defineProps<Props>();
 const router = useRouter();
 const feedback = useFeedback();
 
+// 記録・更新・削除のあとも、表示中の月とカテゴリの絞り込みを保つため、送信先の URL に含める。
+const filterQuery = new URLSearchParams({
+  month: props.filter.month,
+  ...(props.filter.category === null ? {} : { category: String(props.filter.category) }),
+}).toString();
+
 const editing = ref<ExpenseRow | null>(null);
 const status = ref(""); // 画面読み上げ用（role="status"）
 
 // ---- 一覧: 「さらに 30 件読み込む」（keyset ページング）-----------------------------------
-// ページの再読み込み（記録・更新・削除のあと）で、追加読み込み分は破棄して先頭 30 件から出し直す。
+// ページの再読み込み（記録・更新・削除のあと）で、先頭 30 件の内容が変わったときだけ、追加読み込み分を破棄して出し直す。
+// 内容が同じ（カテゴリをその場で作成した直後など）なら、読み込んだ分を保つ。
 const extra = ref<ExpenseRow[]>([]);
 const extraCursor = ref<string | null | undefined>(undefined); // undefined = loader が返した nextCursor
 const loadingMore = ref(false);
+let generation = 0; // 出し直すたびに増やし、遅れて返った古い読み込みの結果は捨てる
 watch(
-  () => props.expenses,
+  () => JSON.stringify(props.expenses),
   () => {
+    generation += 1;
     extra.value = [];
     extraCursor.value = undefined;
+    loadingMore.value = false;
   },
 );
 const rows = computed(() => [...props.expenses, ...extra.value]);
@@ -39,6 +49,7 @@ const cursor = computed(() => (extraCursor.value === undefined ? props.nextCurso
 async function loadMore() {
   if (loadingMore.value || !cursor.value) return;
   loadingMore.value = true;
+  const mine = generation;
   try {
     const query: { month: string; cursor: string; category?: string } = {
       month: props.filter.month,
@@ -46,6 +57,7 @@ async function loadMore() {
     };
     if (props.filter.category !== null) query.category = String(props.filter.category);
     const result = await fetch("/api/expenses", { query });
+    if (mine !== generation) return; // 読み込み中に一覧が出し直された
     const firstNew = result.items[0];
     extra.value = [...extra.value, ...result.items];
     extraCursor.value = result.nextCursor;
@@ -53,9 +65,9 @@ async function loadMore() {
     await nextTick();
     if (firstNew) document.getElementById(`expense-${firstNew.id}`)?.focus();
   } catch (error) {
-    feedback.error("読み込めませんでした", errorMessage(error));
+    if (mine === generation) feedback.error("読み込めませんでした", errorMessage(error));
   } finally {
-    loadingMore.value = false;
+    if (mine === generation) loadingMore.value = false;
   }
 }
 
@@ -82,7 +94,8 @@ async function finishEdit(id: number) {
 
 // ---- 削除（確認ダイアログ）-----------------------------------------------------------------
 const deleting = ref<ExpenseRow | null>(null);
-const deleteForm = useForm("/?delete", { id: 0 });
+// 絞り込みは画面の遷移（リンク・絞り込み）のたびにページごと作り直されるので、ここで固定してよい。
+const deleteForm = useForm(`/?delete&${filterQuery}` as "/?delete", { id: 0 });
 const deletingBusy = ref(false);
 
 async function confirmDelete() {
@@ -119,6 +132,7 @@ async function confirmDelete() {
     <section aria-labelledby="form-heading" class="mt-4 rounded-lg border border-default p-4">
       <h2 id="form-heading" class="text-lg font-bold">{{ editing ? `「${editing.itemName}」を編集` : "支出を記録" }}</h2>
       <ExpenseForm
+        :query="filterQuery"
         :categories="categories"
         :default-spent-at="defaultSpentAt"
         :editing="editing"
