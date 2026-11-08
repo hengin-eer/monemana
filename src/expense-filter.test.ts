@@ -24,7 +24,7 @@ describe("parseFilter", () => {
   it("カテゴリは数値か none。それ以外は絞り込みなし", () => {
     expect(parseFilter({ category: "12" }, now).category).toBe(12);
     expect(parseFilter({ category: "none" }, now).category).toBe("none");
-    for (const category of ["abc", "-1", "1.5", ""]) {
+    for (const category of ["abc", "-1", "1.5", "", "0", "00", "99999999999999999999"]) {
       expect(parseFilter({ category }, now).category, category).toBeNull();
     }
   });
@@ -38,8 +38,14 @@ describe("cursor", () => {
     expect(decodeCursor(cursor)).toEqual({ spentAt, id: 42 });
   });
 
+  it("1970 年より前の日時（負の epoch）も往復できる", () => {
+    const spentAt = new Date("1969-12-31T14:59:00.000Z");
+    expect(spentAt.getTime()).toBeLessThan(0);
+    expect(decodeCursor(encodeCursor({ spentAt, id: 42 }))).toEqual({ spentAt, id: 42 });
+  });
+
   it("不正なカーソルは null（先頭から読む）", () => {
-    for (const c of [undefined, "", "abc", "1_", "_1", "1_2_3", "1; DROP TABLE"]) {
+    for (const c of [undefined, "", "abc", "1_", "_1", "1_2_3", "1; DROP TABLE", "9999999999999999_1"]) {
       expect(decodeCursor(c), String(c)).toBeNull();
     }
   });

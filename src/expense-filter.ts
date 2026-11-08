@@ -24,7 +24,11 @@ export function parseFilter(query: { month?: string; category?: string }, now = 
   if (query.month === "all" || (query.month !== undefined && isJstMonth(query.month))) month = query.month;
   let category: ExpenseFilter["category"] = null;
   if (query.category === "none") category = "none";
-  else if (query.category && /^\d+$/.test(query.category)) category = Number(query.category);
+  else if (query.category && /^\d+$/.test(query.category)) {
+    const id = Number(query.category);
+    // 0 や安全な整数を超える値は、存在しないカテゴリとして絞り込まない。
+    if (Number.isSafeInteger(id) && id >= 1) category = id;
+  }
   return { month, category };
 }
 
@@ -34,8 +38,13 @@ export function encodeCursor(row: { spentAt: Date; id: number }): string {
 }
 
 export function decodeCursor(cursor: string | undefined): { spentAt: Date; id: number } | null {
-  const m = cursor ? /^(\d{1,16})_(\d{1,16})$/.exec(cursor) : null;
-  return m ? { spentAt: new Date(Number(m[1])), id: Number(m[2]) } : null;
+  const m = cursor ? /^(-?\d{1,16})_(\d{1,16})$/.exec(cursor) : null;
+  if (!m) return null;
+  const spentAt = new Date(Number(m[1]));
+  const id = Number(m[2]);
+  // 16 桁だと Date の範囲（±8.64e15 ms）を超えて Invalid Date になる。DB に渡す前に弾く。
+  if (Number.isNaN(spentAt.getTime()) || !Number.isSafeInteger(id)) return null;
+  return { spentAt, id };
 }
 
 // ---- 一覧の 1 行（サーバーが整形して画面に渡す）-----------------------------------
