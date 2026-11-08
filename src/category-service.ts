@@ -2,11 +2,10 @@ import { categories, expenses } from "@schema";
 import { and, count, db, eq } from "void/db";
 import { ValidationError } from "void/handler";
 import { HTTPException } from "hono/http-exception";
+import { isForeignKeyViolation, isUniqueViolation } from "./db-errors.ts";
 
 // カテゴリの読み書き。すべて userId で絞り、他人のカテゴリには触れない。
 
-const isUniqueViolation = (error: unknown) => /UNIQUE constraint failed/i.test(String(error));
-const isForeignKeyViolation = (error: unknown) => /FOREIGN KEY constraint failed/i.test(String(error));
 
 export type CategoryWithUsage = { id: number; name: string; usageCount: number };
 

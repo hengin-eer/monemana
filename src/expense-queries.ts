@@ -1,7 +1,9 @@
 import { categories, expenses } from "@schema";
 import { and, count, db, desc, eq, gte, isNull, lt, or, sql, sum } from "void/db";
 import { HTTPException } from "hono/http-exception";
+import { ValidationError } from "void/handler";
 import { assertOwnedCategory } from "./category-service.ts";
+import { isForeignKeyViolation } from "./db-errors.ts";
 import {
   type ExpenseFilter,
   type ExpenseRow,
@@ -116,19 +118,31 @@ export async function summarize(userId: string, month: string): Promise<Summary>
 
 type ExpenseInput = { spentAt: Date; amount: number; itemName: string; categoryId: number | null };
 
+// 所有の確認と書き込みの間に、別のタブがカテゴリを消した場合は、外部キー制約が止める。項目エラーにそろえる。
+const categoryGone = () => new ValidationError({ categoryId: "カテゴリが見つかりません" });
+
 export async function createExpense(userId: string, input: ExpenseInput): Promise<void> {
   await assertOwnedCategory(userId, input.categoryId);
-  await db.insert(expenses).values({ ...input, userId });
+  try {
+    await db.insert(expenses).values({ ...input, userId });
+  } catch (error) {
+    throw isForeignKeyViolation(error) ? categoryGone() : error;
+  }
 }
 
 /** 他人の行・存在しない行は 404。 */
 export async function updateExpense(userId: string, id: number, input: ExpenseInput): Promise<void> {
   await assertOwnedCategory(userId, input.categoryId);
-  const updated = await db
-    .update(expenses)
-    .set(input)
-    .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
-    .returning({ id: expenses.id });
+  let updated: { id: number }[];
+  try {
+    updated = await db
+      .update(expenses)
+      .set(input)
+      .where(and(eq(expenses.id, id), eq(expenses.userId, userId)))
+      .returning({ id: expenses.id });
+  } catch (error) {
+    throw isForeignKeyViolation(error) ? categoryGone() : error;
+  }
   if (updated.length === 0) throw new HTTPException(404, { message: "支出が見つかりません" });
 }
 
