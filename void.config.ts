@@ -3,7 +3,9 @@ import { defineConfig } from 'void/config';
 
 export default defineConfig({
   "head": {
-    "htmlAttrs": { "lang": "ja" }
+    "htmlAttrs": { "lang": "ja" },
+    // これが無いとスマホがデスクトップ幅(約980px)で描画する。ズームは塞がない(アクセシビリティ)。
+    "meta": [{ "name": "viewport", "content": "width=device-width, initial-scale=1" }]
   },
   "worker": {
     "compatibility_date": "2026-02-24"
