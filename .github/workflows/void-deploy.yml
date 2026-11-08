@@ -33,3 +33,11 @@ jobs:
           CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: pnpm exec void deploy --platform cloudflare
+      # 失敗の原因調査用。Voidの詳細ログ(起動確認で叩いたURLと応答)を保存する。
+      - name: Upload Void logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: void-logs
+          path: ~/.void/logs/
+          retention-days: 7
