@@ -15,6 +15,13 @@
       "when": 1792798569591,
       "tag": "20261023233609_thick_hercules",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1794116857595,
+      "tag": "20261108054737_tough_quasimodo",
+      "breakpoints": true
     }
   ]
 }
