@@ -3,7 +3,7 @@ import { isPublicPath, shouldRedirectToLogin } from "./public-paths.ts";
 
 describe("isPublicPath", () => {
   it("公開パスは未ログインでも通す", () => {
-    for (const p of ["/login", "/login/", "/reset-password", "/api/auth", "/api/auth/sign-in/email", "/assets/app.js"]) {
+    for (const p of ["/login", "/login/", "/reset-password", "/api/auth", "/api/auth/sign-in/email", "/assets/app.js", "/favicon.svg", "/og-image.png"]) {
       expect(isPublicPath(p), p).toBe(true);
     }
   });
