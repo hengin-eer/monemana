@@ -65,3 +65,11 @@ pnpm exec vp build
 - 登録済みのメールとパスワードで再ログインできる。
 
 支出 CRUD は Issue #1 の対象です。既存の messages サンプルは残しています。
+
+## UI（Nuxt UI + Tailwind CSS）
+
+- Nuxt UI のコンポーネント（`UButton` など）と `useToast` は自動で import されます。
+- 型定義の `auto-imports.d.ts` / `components.d.ts` は `vp dev` または `vp build` を一度実行すると生成されます（git では管理しません）。
+  新しく clone した直後は、型チェックの前に `pnpm exec vp build` を実行してください。
+- `@void/vue` にはアプリの初期化に差し込む公開フックがないため、`pages/layout.vue` の `setup` で Nuxt UI のプラグインを差し込んでいます。
+- Nuxt UI は色の CSS 変数を実行時に出しますが、Void の SSR には含まれないため、`vite.config.ts` の `uiColors` から静的な CSS（`virtual:ui-colors.css`）を作って補っています。色を変えるときは `uiColors` を直してください。
