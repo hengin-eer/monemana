@@ -71,37 +71,44 @@ async function resetPassword() {
 </script>
 
 <template>
-  <main>
-    <h1>monemana</h1>
-    <h2>パスワードの再設定</h2>
-    <p v-if="linkError" role="alert">{{ linkError }}</p>
+  <main class="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-6 px-4 py-10">
+    <div>
+      <h1 class="text-sm font-medium text-muted">monemana</h1>
+      <h2 class="mt-1 text-2xl font-bold">パスワードの再設定</h2>
+    </div>
+    <UAlert v-if="linkError" role="alert" color="error" variant="subtle" :description="linkError" />
 
     <form v-if="token" @submit.prevent="resetPassword">
-      <fieldset :disabled="pending">
-        <legend>新しいパスワード</legend>
-        <p>
-          <label for="new-password">新しいパスワード（8〜128文字）</label>
-          <input id="new-password" v-model="newPassword" type="password" autocomplete="new-password"
-            minlength="8" maxlength="128" required />
-        </p>
-        <p v-if="error" role="alert">{{ error }}</p>
-        <button type="submit">{{ pending ? "処理中…" : "パスワードを変更" }}</button>
+      <fieldset :disabled="pending" class="space-y-4">
+        <legend class="mb-3 text-sm font-medium">新しいパスワード</legend>
+        <UFormField label="新しいパスワード（8〜128文字）">
+          <UInput
+            v-model="newPassword"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            maxlength="128"
+            required
+            class="w-full"
+          />
+        </UFormField>
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
+        <UButton type="submit" block>{{ pending ? "処理中…" : "パスワードを変更" }}</UButton>
       </fieldset>
     </form>
 
     <form v-else @submit.prevent="requestReset">
-      <fieldset :disabled="pending">
-        <legend>再設定メールを依頼</legend>
-        <p>
-          <label for="email">メールアドレス</label>
-          <input id="email" v-model="email" type="email" autocomplete="username" required />
-        </p>
-        <p v-if="notice" role="status">{{ notice }}</p>
-        <p v-if="error" role="alert">{{ error }}</p>
-        <button type="submit">{{ pending ? "処理中…" : "再設定メールを送る" }}</button>
+      <fieldset :disabled="pending" class="space-y-4">
+        <legend class="mb-3 text-sm font-medium">再設定メールを依頼</legend>
+        <UFormField label="メールアドレス">
+          <UInput v-model="email" type="email" autocomplete="username" required class="w-full" />
+        </UFormField>
+        <UAlert v-if="notice" role="status" color="info" variant="subtle" :description="notice" />
+        <UAlert v-if="error" role="alert" color="error" variant="subtle" :description="error" />
+        <UButton type="submit" block>{{ pending ? "処理中…" : "再設定メールを送る" }}</UButton>
       </fieldset>
     </form>
 
-    <p><a href="/login">ログインに戻る</a></p>
+    <p class="text-sm"><a href="/login" class="text-primary underline underline-offset-2">ログインに戻る</a></p>
   </main>
 </template>
