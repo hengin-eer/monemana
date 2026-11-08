@@ -43,7 +43,7 @@ const linkClass =
       </nav>
     </div>
     <div class="flex items-center gap-3 text-sm">
-      <span class="text-muted">{{ email }}</span>
+      <span class="min-w-0 truncate text-muted max-sm:max-w-[10rem]">{{ email }}</span>
       <UButton type="button" variant="outline" color="neutral" size="sm" :aria-disabled="signingOut" @click="signOut">
         {{ signingOut ? "処理中…" : "ログアウト" }}
       </UButton>
