@@ -2,7 +2,13 @@ import { categories, expenses } from "@schema";
 import { and, count, db, desc, eq, gte, isNull, lt, or, sql, sum } from "void/db";
 import { HTTPException } from "hono/http-exception";
 import { assertOwnedCategory } from "./category-service.ts";
-import { type ExpenseFilter, PAGE_SIZE, decodeCursor, encodeCursor } from "./expense-filter.ts";
+import {
+  type ExpenseFilter,
+  type ExpenseRow,
+  PAGE_SIZE,
+  decodeCursor,
+  encodeCursor,
+} from "./expense-filter.ts";
 import { formatJstDateTime, jstMonthRange, toJstLocalInput } from "./jst.ts";
 
 function conditions(userId: string, filter: ExpenseFilter) {
@@ -15,20 +21,6 @@ function conditions(userId: string, filter: ExpenseFilter) {
 }
 
 // ---- 一覧（keyset ページング）---------------------------------------------
-
-export type ExpenseRow = {
-  id: number;
-  /** ISO 文字列（UTC の瞬間）。 */
-  spentAt: string;
-  /** 表示用（JST）。サーバーで整形して SSR とブラウザの食い違いを避ける。 */
-  spentAtLabel: string;
-  /** `datetime-local` 用（JST）。編集フォームに読み込む。 */
-  spentAtInput: string;
-  amount: number;
-  itemName: string;
-  categoryId: number | null;
-  categoryName: string | null;
-};
 
 export async function listExpenses(
   userId: string,

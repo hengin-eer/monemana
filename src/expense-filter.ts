@@ -38,6 +38,22 @@ export function decodeCursor(cursor: string | undefined): { spentAt: Date; id: n
   return m ? { spentAt: new Date(Number(m[1])), id: Number(m[2]) } : null;
 }
 
+// ---- 一覧の 1 行（サーバーが整形して画面に渡す）-----------------------------------
+
+export type ExpenseRow = {
+  id: number;
+  /** ISO 文字列（UTC の瞬間）。 */
+  spentAt: string;
+  /** 表示用（JST）。サーバーで整形して SSR とブラウザの食い違いを避ける。 */
+  spentAtLabel: string;
+  /** `datetime-local` 用（JST）。編集フォームに読み込む。 */
+  spentAtInput: string;
+  amount: number;
+  itemName: string;
+  categoryId: number | null;
+  categoryName: string | null;
+};
+
 // ---- 月の移動（画面用）---------------------------------------------------------
 
 export function monthNav(month: string, now = new Date()) {
