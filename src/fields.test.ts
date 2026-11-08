@@ -16,10 +16,10 @@ describe("amountField", () => {
     expect(amountField.parse(300)).toBe(300);
   });
   it("0 以下・不正は弾く", () => {
-    for (const v of ["0", "-1", "abc", "", 0, -3, 1.5]) {
+    for (const v of ["0", "-1", "abc", "", 0, -3, 1.5, "100000000001"]) {
       const r = amountField.safeParse(v);
       expect(r.success, String(v)).toBe(false);
-      expect(messageOf(r)).toBe("金額は1以上の整数で入力してください");
+      expect(messageOf(r)).toBe("金額は1円以上、1,000億円以下の整数で入力してください");
     }
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vite-plus/test";
-import { parseAmount } from "./money.ts";
+import { MAX_AMOUNT, parseAmount } from "./money.ts";
 
 describe("parseAmount", () => {
   it("半角の整数をそのまま通す", () => {
@@ -25,10 +25,13 @@ describe("parseAmount", () => {
     expect(parseAmount(Number.NaN)).toBeNull();
   });
 
-  it("安全な整数の範囲を超えたら null", () => {
-    expect(parseAmount("9007199254740991")).toBe(9007199254740991);
+  it("上限（1,000 億円）を超えたら null。合計が安全な整数に収まる", () => {
+    expect(MAX_AMOUNT).toBe(100_000_000_000);
+    expect(parseAmount(String(MAX_AMOUNT))).toBe(MAX_AMOUNT);
+    expect(parseAmount(String(MAX_AMOUNT + 1))).toBeNull();
     expect(parseAmount("9007199254740992")).toBeNull();
     expect(parseAmount("99999999999999999999")).toBeNull();
+    expect(MAX_AMOUNT * 90_000).toBeLessThanOrEqual(Number.MAX_SAFE_INTEGER);
   });
 
   it("文字列・数値以外は null", () => {

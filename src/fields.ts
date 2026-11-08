@@ -8,7 +8,7 @@ import { parseAmount } from "./money.ts";
 export const amountField = z.union([z.string(), z.number()]).transform((value, ctx) => {
   const amount = parseAmount(value);
   if (amount === null) {
-    ctx.addIssue({ code: "custom", message: "金額は1以上の整数で入力してください" });
+    ctx.addIssue({ code: "custom", message: "金額は1円以上、1,000億円以下の整数で入力してください" });
     return z.NEVER;
   }
   return amount;
